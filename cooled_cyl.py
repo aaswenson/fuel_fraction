@@ -68,7 +68,8 @@ def frac_iterate(frac, coolant, fuel, matr):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", type=str, help="frac_coolant_fuel_matr")
+    parser.add_argument("-c", "-config", type=str,
+            help="frac_coolant_fuel_matr", required=True)
     args = parser.parse_args()
 
     components = args.c.split('_')
