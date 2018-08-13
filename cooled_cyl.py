@@ -5,6 +5,7 @@ from subprocess import call, DEVNULL
 import math
 import os
 from mcnp_inputs import HomogeneousInput
+import argparse
 
 fp = open('base_input.txt', 'r')
 lines = fp.read()
@@ -57,14 +58,27 @@ def find_radius(frac, coolant, fuel, matr, cool_rho):
 
     return res
 
-def frac_iterate(coolant, fuel, matr, cool_rho):
-    for frac in np.arange(0.1, 1, 0.1):
-        resfile = open('{0}_{1}_results.txt'.format(coolant, fuel) , '+a')
-        res = find_radius(frac, coolant, fuel, matr, cool_rho)
-        resfile.write("{0} {1}\n".format(round(res.x, 5), frac))
-        resfile.close()
+def frac_iterate(frac, coolant, fuel, matr):
+    rhos = {'CO2' : 233.89e-3, 'H2O' : 123.48e-3}
 
-frac_iterate('CO2', 'UN', 'W',   233.89e-3)
-frac_iterate('CO2', 'UO2', None, 233.89e-3)
-frac_iterate('H2O', 'UN', 'W',   123.48e-3)
-frac_iterate('H2O', 'UO2', None, 123.48e-3)
+    resfile = open('{0}_{1}{2}_results.txt'.format(frac, coolant, fuel) , '+a')
+    res = find_radius(frac, coolant, fuel, matr, rhos[coolant])
+    resfile.write("{0} {1}\n".format(round(res.x, 5), frac))
+    resfile.close()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", type=str, help="frac_coolant_fuel_matr")
+    args = parser.parse_args()
+
+    components = args.c.split('_')
+    frac = float(components[0])
+    fuel = components[1]
+    cool = components[2]
+
+    if len(components) == 3:
+        matr = components[3]
+    else:
+        matr = None
+
+    frac_iterate(frac, fuel, cool, matr)
